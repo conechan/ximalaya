@@ -7,6 +7,8 @@ const url =  require("url");
 const path = require("path");
 const events = require("events");
 
+const dest = 'E:\\ximalaya'
+
 function main(){
   var url = process.argv[2];
   if(!url){
@@ -100,13 +102,14 @@ File.prototype.download = function(){
   var self = this;
   self.state = "enqueue";
   var options = url.parse(self.url);
+
   http.get(options,function(res){
     self.state = "response";
     var chunks = [];
     self.size = res.headers["content-length"] || 0;
     self.contentType = res.headers["content-type"];
     if(self.isBinaryFile()){
-      var writeStream = fs.createWriteStream(self.filename);
+      var writeStream = fs.createWriteStream(path.join(dest, self.filename));
     }
     res.on("data",function(chunk){
       self.state = "data";
@@ -135,30 +138,35 @@ File.prototype.getM4a = function(){
   var track = JSON.parse(this.content);
   this.url =  track.play_path;
   this.filename = track.title + ".m4a";
+  if (fs.existsSync(path.join(dest, this.filename))) {
+    console.log(`${this.filename}已存在，跳过！`)
+    this.state = "finish";
+    return
+  }
   this.download();
 }
 
 File.prototype.toMp3 = function(){
   var self = this;
-  self.state = "convert";
-  var basename = path.basename(self.filename,".m4a"); 
-  self.filename = basename + ".mp3";
-  self.time = "00:00:00.00";
-  var ffmpeg = spawn("ffmpeg",["-y","-i",basename + ".m4a","-acodec","libmp3lame",self.filename]);
-  ffmpeg.stderr.on("data",function(chunk){
-    self.state = "converting";
-    var msg = chunk.toString();
-    var start = msg.indexOf("time=");
-    var end = msg.indexOf(" bitrate");
-    if(start > -1 && end > -1){
-      self.time = msg.substring(start+5,end);
-    }
-  }).on("end",function(){
+  // self.state = "convert";
+  // var basename = path.basename(self.filename,".m4a");
+  // self.filename = basename + ".mp3";
+  // self.time = "00:00:00.00";
+  // var ffmpeg = spawn("ffmpeg",["-y","-i",basename + ".m4a","-acodec","libmp3lame",self.filename]);
+  // ffmpeg.stderr.on("data",function(chunk){
+  //   self.state = "converting";
+  //   var msg = chunk.toString();
+  //   var start = msg.indexOf("time=");
+  //   var end = msg.indexOf(" bitrate");
+  //   if(start > -1 && end > -1){
+  //     self.time = msg.substring(start+5,end);
+  //   }
+  // }).on("end",function(){
     self.state = "finish";
-  });
+  // });
 }
 File.prototype.isBinaryFile = function(){
-  return this.is("m4a"); 
+  return this.is("m4a");
 }
 File.mime_types = {
   "audio/x-m4a":"m4a",
@@ -172,7 +180,7 @@ File.prototype.extname = function(){
 }
 File.prototype.is = function(extname){
   var re = new RegExp(extname);
-  return re.test(this.extname()); 
+  return re.test(this.extname());
 }
 File.prototype.transition = function(){
   if(this.state === "create"){
@@ -230,7 +238,7 @@ StateMachine.prototype.enqueue = function(file){
   this.queue.push(file);
 }
 StateMachine.prototype.dequeue = function(){
-  var len = StateMachine.idle_threads(); 
+  var len = StateMachine.idle_threads();
   for(var i = 0; i < len && this.queue.length > 0; i++){
     var file = this.queue.shift();
     StateMachine.current_threads++;
@@ -279,7 +287,7 @@ function getDisplayRectangle(str){
     }
     if(charCode >= 0 && charCode <= 255){
       width += 1;
-    }else{ 
+    }else{
       width += 2;
     }
   }
