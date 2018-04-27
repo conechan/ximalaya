@@ -95,6 +95,9 @@ File.prototype.toString = function(){
     case "finish":
       result = util.format("%s任务完成！",this.filename);
       break;
+    case "skip":
+      result = util.format("%s已存在，跳过！",this.filename);
+      break;
   }
   return result;
 }
@@ -139,8 +142,7 @@ File.prototype.getM4a = function(){
   this.url =  track.play_path;
   this.filename = track.title + ".m4a";
   if (fs.existsSync(path.join(dest, this.filename))) {
-    console.log(`${this.filename}已存在，跳过！`)
-    this.state = "finish";
+    this.state = "skip";
     return
   }
   this.download();
@@ -201,7 +203,7 @@ File.prototype.transition = function(){
 }
 
 File.prototype.isFinish =function(){
-  return this.state === "finish";
+  return this.state === "finish" || this.state === "skip";
 }
 File.prototype.finish = function(){
   if(this.isBinaryFile()){
