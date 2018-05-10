@@ -8,15 +8,16 @@ const path = require("path");
 const events = require("events");
 
 // const dest = 'E:\\ximalaya'
+let dest
 
 function main(){
-  let dest = process.argv[2];
+  dest = process.argv[2] || path.resolve('download')
   const url = 'http://www.ximalaya.com/110263254/album/14748728/'
-  if(!dest){
-    dest = 'download'
-    // usage();
-    // return;
-  }
+  // if(!dest){
+  //   dest = path.resolve('download')
+  //   // usage();
+  //   // return;
+  // }
   var fsm = new StateMachine();
   var page = new File(url);
   fsm.enqueue(page);
