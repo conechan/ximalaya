@@ -12,7 +12,8 @@ const dest = 'E:\\ximalaya'
 function main(){
   var url = process.argv[2];
   if(!url){
-    usage();
+    url = 'http://www.ximalaya.com/110263254/album/14748728/'
+    // usage();
     return;
   }
   var fsm = new StateMachine();
@@ -56,7 +57,7 @@ function main(){
 }
 function usage(){
   console.log("Usage: node index.js url")
-  console.log("Example: node index.js http://www.ximalaya.com/48536908/album/4264862/")
+  console.log("Example: node index.js http://www.ximalaya.com/110263254/album/14748728/")
 }
 function File(url){
   this.url = url;
