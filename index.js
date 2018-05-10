@@ -14,7 +14,7 @@ function main(){
   if(!url){
     url = 'http://www.ximalaya.com/110263254/album/14748728/'
     // usage();
-    return;
+    // return;
   }
   var fsm = new StateMachine();
   var page = new File(url);
