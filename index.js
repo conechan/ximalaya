@@ -7,12 +7,13 @@ const url =  require("url");
 const path = require("path");
 const events = require("events");
 
-const dest = 'E:\\ximalaya'
+// const dest = 'E:\\ximalaya'
 
 function main(){
-  var url = process.argv[2];
-  if(!url){
-    url = 'http://www.ximalaya.com/110263254/album/14748728/'
+  let dest = process.argv[2];
+  const url = 'http://www.ximalaya.com/110263254/album/14748728/'
+  if(!dest){
+    dest = 'download'
     // usage();
     // return;
   }
