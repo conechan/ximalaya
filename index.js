@@ -9,10 +9,9 @@ const events = require("events");
 const cheerio = require('cheerio')
 
 // const dest = 'E:\\ximalaya'
-let dest
+let dest = process.argv[2] || path.resolve('download')
 
 function main(){
-  dest = process.argv[2] || path.resolve('download')
   const url = 'http://www.ximalaya.com/yinyue/14748728/'
 
   var fsm = new StateMachine();

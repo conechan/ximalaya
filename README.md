@@ -1,6 +1,6 @@
 # 下载陈一发儿喜马拉雅音乐
 
-http://www.ximalaya.com/110263254/album/14748728/
+http://www.ximalaya.com/yinyue/14748728/
 
 ## 前提
 
