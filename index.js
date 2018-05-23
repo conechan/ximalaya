@@ -6,48 +6,59 @@ const util = require("util");
 const url =  require("url");
 const path = require("path");
 const events = require("events");
+const cheerio = require('cheerio')
 
 // const dest = 'E:\\ximalaya'
 let dest
 
 function main(){
   dest = process.argv[2] || path.resolve('download')
-  const url = 'http://www.ximalaya.com/110263254/album/14748728/'
-  // if(!dest){
-  //   dest = path.resolve('download')
-  //   // usage();
-  //   // return;
-  // }
+  const url = 'http://www.ximalaya.com/yinyue/14748728/'
+
   var fsm = new StateMachine();
   var page = new File(url);
   fsm.enqueue(page);
   fsm.start();
   function analyzeSoundIds(){
-    var soundsRe = /class="personal_body" sound_ids="(.*?)"/;
-    var match = soundsRe.exec(this.content);
-    if(match){
-      var sounds = match[1].split(",");
-      sounds.forEach(function(id,i){
-        var url = "http://www.ximalaya.com/tracks/" + id + ".json";
-        var sound = new File(url);
+    var soundRe = /\/(\d+)$/;
+    this.$$ = cheerio.load(this.content)
+    // console.log(this.$$('.sound-list .text a').length)
+    this.$$('.sound-list .text a').each((index, elem) => {
+      // console.log(soundsRe.exec(elem.attribs.href))
+      const match = soundRe.exec(elem.attribs.href)
+      if (match) {
+        const url = "http://www.ximalaya.com/tracks/" + match[1] + ".json";
+        const sound = new File(url);
         fsm.enqueue(sound);
-      })
-    }
+      }
+    })
+    // var match = soundsRe.exec(this.content);
+    // if(match){
+    //   var sounds = match[1].split(",");
+    //   sounds.forEach(function(id,i){
+    //     var url = "http://www.ximalaya.com/tracks/" + id + ".json";
+    //     var sound = new File(url);
+    //     fsm.enqueue(sound);
+    //   })
+    // }
   }
   page.on("downloaded",function(){
+    this.$ = cheerio.load(this.content)
+    // console.log(this.$('.page-item .page-link span').last().html())
+    const totalPage = this.$('.page-item .page-link span').last().html()
     analyzeSoundIds.call(this);
-    var pagesRe =/<a[^>]*?class='pagingBar_page'[^>]*?>(\d+)<\/a>/gm;
-    var pageLink;
-    var pages = [];
-    var lastPage = 0;
-    while((pageLink = pagesRe.exec(this.content)) != null){
-      pages.push(pageLink[1]);
-    }
-    if(pages.length > 0){
-      lastPage = pages.pop();
-    }
-    for(var i = 2; i <= lastPage; i++){
-      var p = new File(url + "?page=" + i);
+    // var pagesRe =/<a[^>]*?class='pagingBar_page'[^>]*?>(\d+)<\/a>/gm;
+    // var pageLink;
+    // var pages = [];
+    // var lastPage = 0;
+    // while((pageLink = pagesRe.exec(this.content)) != null){
+    //   pages.push(pageLink[1]);
+    // }
+    // if(pages.length > 0){
+    //   lastPage = pages.pop();
+    // }
+    for(var i = 2; i <= totalPage; i++){
+      var p = new File(url + "p" + i + "/");
       p.on("downloaded",analyzeSoundIds);
       fsm.enqueue(p);
     }

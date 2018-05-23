@@ -13,5 +13,7 @@ https://nodejs.org/en/
 命令行
 
 ```bash
+npm i
+
 node index.js <目标目录>
 ```
